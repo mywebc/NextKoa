@@ -18,13 +18,21 @@ const combineReducers = combineReducers({
   counter: counterReducer,
   user: userReducer
 });
-const store = createStore(
-  combineReducers,
-  {
-    counter: counterInitalState,
-    user: userInitalState
-  },
-  composeWithDevTools(applyMiddleware(ReactThunk))
-);
 
-export default store;
+// next文件编译后会存在.next文件中， node每次都会从此文件中读取，
+// 每次编译时，store都会创建一次，之后就不会再创建了，我们需要每次编译时都要让它重新创建
+export default function initalStore(state) {
+  const store = createStore(
+    combineReducers,
+    Object.assign(
+      {},
+      {
+        counter: counterInitalState,
+        user: userInitalState
+      },
+      state
+    ),
+    composeWithDevTools(applyMiddleware(ReactThunk))
+  );
+  return store;
+}
