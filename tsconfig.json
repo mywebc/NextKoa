@@ -24,6 +24,6 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx", "pages/home.tsx", "pages/_document.js"
+    "**/*.tsx", "pages-test/home.tsx", "pages-test/_document.js", "components/Layout.jsx"
   ]
 }

@@ -1,38 +1,65 @@
-import { createStore, applyMiddleware } from "redux";
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import ReduxThunk from "redux-thunk";
 import { composeWithDevTools } from "redux-devtools-extension";
-import ReactThunk from "react-redux";
-// applyMiddleware 连接react和redux
 
-const counterInitalState = {
-  count: 0
-};
-const userInitalState = {
-  count: 0
-};
+import axios from "axios";
 
-function counterReducer(state = counterInitalState, action) {}
+const userInitialState = {};
 
-function userReducer(state = userInitalState, action) {}
-// 合并reducer
-const combineReducers = combineReducers({
-  counter: counterReducer,
+const LOGOUT = "LOGOUT";
+
+function userReducer(state = userInitialState, action) {
+  switch (action.type) {
+    case LOGOUT: {
+      return {};
+    }
+    default:
+      return state;
+  }
+}
+
+/**
+ * {
+ *  user: {},
+ *  count: {}
+ * }
+ */
+const allReducers = combineReducers({
   user: userReducer
 });
 
-// next文件编译后会存在.next文件中， node每次都会从此文件中读取，
-// 每次编译时，store都会创建一次，之后就不会再创建了，我们需要每次编译时都要让它重新创建
-export default function initalStore(state) {
+// action creators
+export function logout() {
+  return dispatch => {
+    axios
+      .post("/logout")
+      .then(resp => {
+        if (resp.status === 200) {
+          dispatch({
+            type: LOGOUT
+          });
+        } else {
+          console.log("logout failed", resp);
+        }
+      })
+      .catch(err => {
+        console.log("logout failed", err);
+      });
+  };
+}
+
+export default function initializeStore(state) {
   const store = createStore(
-    combineReducers,
+    allReducers,
     Object.assign(
       {},
       {
-        counter: counterInitalState,
-        user: userInitalState
+        user: userInitialState
       },
       state
     ),
-    composeWithDevTools(applyMiddleware(ReactThunk))
+    composeWithDevTools(applyMiddleware(ReduxThunk))
   );
+
   return store;
 }

@@ -1,26 +1,32 @@
-function getSessionId(id) {
-    // 设置好前缀
-    return `ssid:${id}`
+function getRedisSessionId(sid) {
+    return `ssid:${sid}`
 }
 
 class RedisSessionStore {
     constructor(client) {
         this.client = client
     }
-    async get(id) {
-        const id = getSessionId(id)
+
+    //获取Redis中存储的session数据
+    async get(sid) {
+        console.log('get session', sid)
+        const id = getRedisSessionId(sid)
         const data = await this.client.get(id)
         if (!data) {
             return null
         }
         try {
-            return JSON.parse(data)
-        } catch (error) {
-            console.log(error)
+            const result = JSON.parse(data)
+            return result
+        } catch (err) {
+            console.error(err)
         }
     }
-    async set(id, sess, ttl) {
-        const id = getRedisSessionId(id)
+
+    // 存储session数据到redis
+    async set(sid, sess, ttl) {
+        console.log('set session', sid)
+        const id = getRedisSessionId(sid)
         if (typeof ttl === 'number') {
             ttl = Math.ceil(ttl / 1000)
         }
@@ -34,11 +40,14 @@ class RedisSessionStore {
         } catch (err) {
             console.error(err)
         }
-
     }
-    async destroy(id) {
-        const id = getRedisSessionId(id)
+
+    // 从reids当中删除某个session
+    async destroy(sid) {
+        console.log('destroy session', sid)
+        const id = getRedisSessionId(sid)
         await this.client.del(id)
     }
 }
+
 module.exports = RedisSessionStore

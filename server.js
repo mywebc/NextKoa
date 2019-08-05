@@ -1,51 +1,65 @@
-const Koa = require("koa")
-const Router = require("koa-router")
-const next = require("next")
-const session = require("koa-session")
-const RedisSessionStore = require("./server/session-store")
+const Koa = require('koa')
+const Router = require('koa-router')
+const next = require('next')
+const session = require('koa-session')
+const Redis = require('ioredis')
+const koaBody = require('koa-body')
+const atob = require('atob')
+
+const auth = require('./server/auth')
+const api = require('./server/api')
+
+const RedisSessionStore = require('./server/session-store')
 
 const dev = process.env.NODE_ENV !== 'production'
-const app = next({})
+const app = next({
+    dev
+})
 const handle = app.getRequestHandler()
 
-const Redis = require("ioredis")
-// 创建redis client, 需要传入Session config 中 
+// 创建redis client
 const redis = new Redis()
+
+// 设置nodejs全局增加一个atob方法
+global.atob = atob
 
 app.prepare().then(() => {
     const server = new Koa()
     const router = new Router()
-    server.keys = ["hello develop"]
+
+    server.keys = ['Jokcy develop Github App']
+
+    server.use(koaBody())
+
     const SESSION_CONFIG = {
-        key: "myId",
-        store: new RedisSessionStore(redis)
+        key: 'jid',
+        store: new RedisSessionStore(redis),
     }
+
     server.use(session(SESSION_CONFIG, server))
 
-    server.use(async (ctx, next) => {
-        if (!ctx.session.user) {
-            ctx.session.user = {
-                name: "yun",
-                age: 24
-            }
-        } else {
-            console.log('session is', ctx.session)
-        }
-    })
+    // 配置处理github OAuth的登录
+    auth(server)
+    api(server)
 
-    // 判断路径拿到id,返回相同ID
-    router.get('/home/:id', async (ctx) => {
+    router.get('/a/:id', async ctx => {
         const id = ctx.params.id
         await handle(ctx.req, ctx.res, {
             pathname: '/a',
             query: {
                 id
-            }
+            },
         })
         ctx.respond = false
     })
 
-    router.get('/api/user/info', async (ctx) => {
+    router.get('/api/user/info', async ctx => {
+        // const id = ctx.params.id
+        // await handle(ctx.req, ctx.res, {
+        //   pathname: '/a',
+        //   query: { id },
+        // })
+        // ctx.respond = false
         const user = ctx.session.userInfo
         if (!user) {
             ctx.status = 401
@@ -56,10 +70,23 @@ app.prepare().then(() => {
         }
     })
 
-
     server.use(router.routes())
 
-    server.listen(3000, () => {
-        console.log('koa server has connected!')
+    server.use(async (ctx, next) => {
+        // ctx.cookies.set('id', 'userid:xxxxx')
+        ctx.req.session = ctx.session
+        await handle(ctx.req, ctx.res)
+        ctx.respond = false
     })
+
+    server.use(async (ctx, next) => {
+        ctx.res.statusCode = 200
+        await next()
+    })
+
+    server.listen(3000, () => {
+        console.log('koa server listening on 3000')
+    })
+
+    // ctx.body
 })
