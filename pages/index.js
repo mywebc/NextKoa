@@ -10,9 +10,6 @@ import { cacheArray } from "../lib/repo-basic-cache";
 
 const api = require("../lib/api");
 
-// const cache = new LRU({
-//   maxAge: 1000 * 10,
-// })
 
 const { publicRuntimeConfig } = getCofnig();
 
