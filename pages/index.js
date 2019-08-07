@@ -3,7 +3,6 @@ import { Button, Icon, Tabs } from "antd";
 import getCofnig from "next/config";
 import { connect } from "react-redux";
 import Router, { withRouter } from "next/router";
-import LRU from "lru-cache";
 
 import Repo from "../components/Repo";
 import { cacheArray } from "../lib/repo-basic-cache";
