@@ -3,7 +3,6 @@ import { Button, Icon, Tabs } from "antd";
 import getCofnig from "next/config";
 import { connect } from "react-redux";
 import Router, { withRouter } from "next/router";
-
 import Repo from "../components/Repo";
 import { cacheArray } from "../lib/repo-basic-cache";
 
@@ -150,9 +149,7 @@ function Index({ userRepos, userStaredRepos, user, router }) {
 }
 
 Index.getInitialProps = async ({ ctx, reduxStore }) => {
-  // const result = await axios
-  //   .get('/github/search/repositories?q=react')
-  //   .then(resp => console.log(resp))
+  
 
   const user = reduxStore.getState().user;
   console.log(reduxStore);
