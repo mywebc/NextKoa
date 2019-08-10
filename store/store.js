@@ -1,6 +1,6 @@
-import { createStore, applyMiddleware } from "redux";
+import { createStore, applyMiddleware, combineReducers } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
-import ReactThunk from "react-redux";
+import ReactThunk from "react-thunk";
 // applyMiddleware 连接react和redux
 
 const counterInitalState = {
@@ -14,7 +14,7 @@ function counterReducer(state = counterInitalState, action) {}
 
 function userReducer(state = userInitalState, action) {}
 // 合并reducer
-const combineReducers = combineReducers({
+const combineReducersAll = combineReducers({
   counter: counterReducer,
   user: userReducer
 });
@@ -23,7 +23,7 @@ const combineReducers = combineReducers({
 // 每次编译时，store都会创建一次，之后就不会再创建了，我们需要每次编译时都要让它重新创建
 export default function initalStore(state) {
   const store = createStore(
-    combineReducers,
+    combineReducersAll,
     Object.assign(
       {},
       {

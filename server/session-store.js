@@ -1,5 +1,5 @@
 function getSessionId(id) {
-    // 设置好前缀
+    // redis是键值对形式的， 这种形式下就要设置好前缀
     return `ssid:${id}`
 }
 
