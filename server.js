@@ -6,12 +6,16 @@ const session = require("koa-session")
 const RedisSessionStore = require("./server/session-store")
 
 const dev = process.env.NODE_ENV !== 'production'
-const app = next({})
+const app = next({
+    dev
+})
 const handle = app.getRequestHandler()
 
-const Redis = require("ioredis")
-// 创建redis client, 需要传入Session config 中 
+// 创建redis client
 const redis = new Redis()
+
+// 设置nodejs全局增加一个atob方法
+global.atob = atob
 
 app.prepare().then(() => {
     const server = new Koa()
@@ -32,14 +36,13 @@ app.prepare().then(() => {
         await next()
     })
 
-    // 判断路径拿到id,返回相同ID
-    router.get('/home/:id', async (ctx) => {
+    router.get('/a/:id', async ctx => {
         const id = ctx.params.id
         await handle(ctx.req, ctx.res, {
             pathname: '/a',
             query: {
                 id
-            }
+            },
         })
         // 不再使用koa内部的处理， 由我们手动的返回的内容
         ctx.respond = false
@@ -64,10 +67,23 @@ app.prepare().then(() => {
         }
     })
 
-
     server.use(router.routes())
 
-    server.listen(3000, () => {
-        console.log('koa server has connected!')
+    server.use(async (ctx, next) => {
+        // ctx.cookies.set('id', 'userid:xxxxx')
+        ctx.req.session = ctx.session
+        await handle(ctx.req, ctx.res)
+        ctx.respond = false
     })
+
+    server.use(async (ctx, next) => {
+        ctx.res.statusCode = 200
+        await next()
+    })
+
+    server.listen(3000, () => {
+        console.log('koa server listening on 3000')
+    })
+
+    // ctx.body
 })

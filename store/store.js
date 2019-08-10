@@ -19,20 +19,38 @@ const combineReducersAll = combineReducers({
   user: userReducer
 });
 
-// next文件编译后会存在.next文件中， node每次都会从此文件中读取，
-// 每次编译时，store都会创建一次，之后就不会再创建了，我们需要每次编译时都要让它重新创建
-export default function initalStore(state) {
+// action creators
+export function logout() {
+  return dispatch => {
+    axios
+      .post("/logout")
+      .then(resp => {
+        if (resp.status === 200) {
+          dispatch({
+            type: LOGOUT
+          });
+        } else {
+          console.log("logout failed", resp);
+        }
+      })
+      .catch(err => {
+        console.log("logout failed", err);
+      });
+  };
+}
+
+export default function initializeStore(state) {
   const store = createStore(
     combineReducersAll,
     Object.assign(
       {},
       {
-        counter: counterInitalState,
-        user: userInitalState
+        user: userInitialState
       },
       state
     ),
-    composeWithDevTools(applyMiddleware(ReactThunk))
+    composeWithDevTools(applyMiddleware(ReduxThunk))
   );
+
   return store;
 }
