@@ -3,16 +3,16 @@ import { Button, Icon, Tabs } from "antd";
 import getCofnig from "next/config";
 import { connect } from "react-redux";
 import Router, { withRouter } from "next/router";
+import LRU from "lru-cache";
+
 import Repo from "../components/Repo";
 import { cacheArray } from "../lib/repo-basic-cache";
 
 const api = require("../lib/api");
 
-import Link from "next/link";
-import Router from "next/router";
-import { Button } from "antd";
-import { connect } from "react-redux";
-import getCofnig from "next/config";
+// const cache = new LRU({
+//   maxAge: 1000 * 10,
+// })
 
 const { publicRuntimeConfig } = getCofnig();
 
@@ -29,22 +29,22 @@ function Index({ userRepos, userStaredRepos, user, router }) {
     Router.push(`/?key=${activeKey}`);
   };
 
-events.forEach(event => {
-  Router.events.on(event, makeEvent(event));
-});
-
-const Index = ({ counter, username, rename }) => {
-  function gotoTestB() {
-    Router.push(
-      {
-        pathname: "/test/b",
-        query: {
-          id: 2
-        }
-      },
-      "/test/b/2"
-    );
-  }
+  useEffect(() => {
+    if (!isServer) {
+      cachedUserRepos = userRepos;
+      cachedUserStaredRepos = userStaredRepos;
+      // if (userRepos) {
+      //   cache.set('userRepos', userRepos)
+      // }
+      // if (userStaredRepos) {
+      //   cache.set('userStaredRepos', userStaredRepos)
+      // }
+      const timeout = setTimeout(() => {
+        cachedUserRepos = null;
+        cachedUserStaredRepos = null;
+      }, 1000 * 60 * 10);
+    }
+  }, [userRepos, userStaredRepos]);
 
   useEffect(() => {
     if (!isServer) {
@@ -61,7 +61,6 @@ const Index = ({ counter, username, rename }) => {
           点击登录
         </Button>
         <style jsx>
-          
           {`
             .root {
               height: 400px;
@@ -94,19 +93,16 @@ const Index = ({ counter, username, rename }) => {
         </p>
       </div>
       <div className="user-repos">
-        
         {/* {userRepos.map(repo => (
-                      <Repo repo={repo} />
-                    ))} */}
+                <Repo repo={repo} />
+              ))} */}
         <Tabs activeKey={tabKey} onChange={handleTabChange} animated={false}>
           <Tabs.TabPane tab="你的仓库" key="1">
-            
             {userRepos.map(repo => (
               <Repo key={repo.id} repo={repo} />
             ))}
           </Tabs.TabPane>
           <Tabs.TabPane tab="你关注的仓库" key="2">
-            
             {userStaredRepos.map(repo => (
               <Repo key={repo.id} repo={repo} />
             ))}
@@ -153,9 +149,10 @@ const Index = ({ counter, username, rename }) => {
   );
 }
 
-Index.getInitialProps = async ({ reduxStore }) => {
-  return {};
-};
+Index.getInitialProps = async ({ ctx, reduxStore }) => {
+  // const result = await axios
+  //   .get('/github/search/repositories?q=react')
+  //   .then(resp => console.log(resp))
 
   const user = reduxStore.getState().user;
   console.log(reduxStore);
@@ -207,11 +204,7 @@ Index.getInitialProps = async ({ reduxStore }) => {
 export default withRouter(
   connect(function mapState(state) {
     return {
-      rename: name =>
-        dispatch({
-          type: "UPDATE_USERNAME",
-          name
-        })
+      user: state.user
     };
   })(Index)
 );

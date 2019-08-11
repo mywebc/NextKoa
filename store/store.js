@@ -1,21 +1,22 @@
 import { createStore, applyMiddleware, combineReducers } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
-import ReactThunk from "react-thunk";
+import ReduxThunk from "redux-thunk";
 // applyMiddleware 连接react和redux
 
-const counterInitalState = {
-  count: 0
-};
-const userInitalState = {
-  count: 0
-};
+const userInitalState = {};
+const LOGOUT = 'LOGOUT'
 
-function counterReducer(state = counterInitalState, action) {}
-
-function userReducer(state = userInitalState, action) {}
+function userReducer(state = userInitalState, action) {
+  switch (action.type) {
+    case LOGOUT: {
+      return {}
+    }
+    default:
+      return state
+  }
+}
 // 合并reducer
 const combineReducersAll = combineReducers({
-  counter: counterReducer,
   user: userReducer
 });
 
@@ -45,7 +46,7 @@ export default function initializeStore(state) {
     Object.assign(
       {},
       {
-        user: userInitialState
+        user: userInitalState
       },
       state
     ),

@@ -1,9 +1,10 @@
-function getSessionId(id) {
-    // redis是键值对形式的， 这种形式下就要设置好前缀
+function getRedisSessionId(id) {
+    // redis是键值对形式的， 这种形式下就要设置好前缀（方便区分）
     return `ssid:${id}`
 }
 
 class RedisSessionStore {
+    // 接受一个redis对象
     constructor(client) {
         this.client = client
     }

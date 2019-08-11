@@ -11,6 +11,7 @@ module.exports = server => {
         ctx.response = "code no value";
         return;
       }
+      // 通过code请求token
       const result = await axios({
         method: "POST",
         url: request_token_url,
@@ -24,6 +25,7 @@ module.exports = server => {
         }
       });
       if (result.status === 200 && (result.data && !result.data.error)) {
+        console.log("请求的token数据： result");
         ctx.session.githubAuth = result.data;
 
         const { access_token, token_type } = result.data;
