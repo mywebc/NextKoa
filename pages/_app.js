@@ -2,8 +2,38 @@ import App, { Container } from "next/app";
 import "antd/dist/antd.css";
 import { Provider } from "react-redux";
 import AppHoc from "../lib/with-redux";
+import Router from "next/router";
+import PageLoading from "../components/PageLoading";
+import Layout from "../components/Layout";
 
 class MyApp extends App {
+  state = {
+    context: "value",
+    loading: false
+  };
+  startLoading = () => {
+    this.setState({
+      loading: true
+    });
+  };
+
+  stopLoading = () => {
+    this.setState({
+      loading: false
+    });
+  };
+
+  componentDidMount() {
+    Router.events.on("routeChangeStart", this.startLoading);
+    Router.events.on("routeChangeComplete", this.stopLoading);
+    Router.events.on("routeChangeError", this.stopLoading);
+  }
+
+  componentWillUnmount() {
+    Router.events.off("routeChangeStart", this.startLoading);
+    Router.events.off("routeChangeComplete", this.stopLoading);
+    Router.events.off("routeChangeError", this.stopLoading);
+  }
   static async getInitialProps({ Component, ctx }) {
     let pageProps;
     if (Component.getInitialProps) {
@@ -18,7 +48,10 @@ class MyApp extends App {
     return (
       <Container>
         <Provider store={reduxStore}>
-          <Component {...pageProps} />
+          {this.state.loading ? <PageLoading /> : null}
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
         </Provider>
       </Container>
     );

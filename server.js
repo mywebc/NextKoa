@@ -77,6 +77,17 @@ app.prepare().then(() => {
       ctx.set("Content-Type", "application/json");
     }
   });
+  // detail 页面
+  router.get("/detail", async ctx => {
+    const user = ctx.session.userInfo;
+    if (!user) {
+      ctx.status = 401;
+      ctx.body = "Need Login";
+    } else {
+      ctx.response = false
+    }
+  });
+
 
   server.use(router.routes());
 
