@@ -53,13 +53,25 @@ module.exports = server => {
   });
   // 登出
   server.use(async (ctx, next) => {
-    const path = ctx.path
-    const method = ctx.method
-    if (path === '/logout' && method === 'POST') {
-      ctx.session = null
-      ctx.body = `logout success`
+    const path = ctx.path;
+    const method = ctx.method;
+    if (path === "/logout" && method === "POST") {
+      ctx.session = null;
+      ctx.body = `logout success`;
     } else {
-      await next()
+      await next();
     }
-  })
+  });
+
+  server.use(async (ctx, next) => {
+    const path = ctx.path;
+    const method = ctx.method;
+    if (path === "/prepare-auth" && method === "GET") {
+      const { url } = ctx.query;
+      ctx.session.urlBeforeOAuth = url;
+      ctx.redirect(config.OAUTH_URL);
+    } else {
+      await next();
+    }
+  });
 };
