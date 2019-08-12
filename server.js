@@ -5,6 +5,7 @@ const next = require("next");
 const session = require("koa-session");
 const RedisSessionStore = require("./server/session-store");
 const auth = require("./server/auth")
+const api = require("./server/api")
 const dev = process.env.NODE_ENV !== "production";
 const app = next({
   dev
@@ -39,6 +40,7 @@ app.prepare().then(() => {
   });
   // 处理github登录
   auth(server);
+  api(server);
   // 路由
   router.get("/a/:id", async ctx => {
     const id = ctx.params.id;
