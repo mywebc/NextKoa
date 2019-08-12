@@ -4,7 +4,7 @@ const next = require("next");
 // koa中的session 包
 const session = require("koa-session");
 const RedisSessionStore = require("./server/session-store");
-
+const auth = require("./server/auth")
 const dev = process.env.NODE_ENV !== "production";
 const app = next({
   dev
@@ -30,14 +30,16 @@ app.prepare().then(() => {
     store: new RedisSessionStore(redis)
     // maxAge: 6 * 1000
   };
-  // 使用session
+  // 使用session  
   server.use(session(SESSION_CONFIG, server));
 
   server.use(async (ctx, next) => {
     console.log("session is", ctx.session);
     await next();
   });
-
+  // 处理github登录
+  auth(server);
+  // 路由
   router.get("/a/:id", async ctx => {
     const id = ctx.params.id;
     await handle(ctx.req, ctx.res, {
