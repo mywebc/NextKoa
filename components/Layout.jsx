@@ -125,8 +125,8 @@ function MyLayout({ children, user, logout, router }) {
         <Container>{children}</Container>
       </Content>
       <Footer style={footerStyle}>
-        Develop by Jokcy @
-        <a href="mailto:jokcy@hotmail.com">jokcy@hotmail.com</a>
+        Develop by Chenxiaolani @
+        <a href="https://www.chenxiaolani.com">https://www.chenxiaolani.com</a>
       </Footer>
       <style jsx>{`
         .content {

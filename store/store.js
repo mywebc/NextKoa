@@ -1,18 +1,19 @@
 import { createStore, applyMiddleware, combineReducers } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
 import ReduxThunk from "redux-thunk";
+import axios from "axios";
 // applyMiddleware 连接react和redux
 
 const userInitalState = {};
-const LOGOUT = 'LOGOUT'
+const LOGOUT = "LOGOUT";
 
 function userReducer(state = userInitalState, action) {
   switch (action.type) {
     case LOGOUT: {
-      return {}
+      return {};
     }
     default:
-      return state
+      return state;
   }
 }
 // 合并reducer

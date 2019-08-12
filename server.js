@@ -66,7 +66,7 @@ app.prepare().then(() => {
     ctx.body = "删除session成功！";
   });
 
-
+  // 从session里获取用户信息
   router.get("/api/user/info", async ctx => {
     const user = ctx.session.userInfo;
     if (!user) {
@@ -81,7 +81,7 @@ app.prepare().then(() => {
   server.use(router.routes());
 
   server.use(async (ctx, next) => {
-    // ctx.cookies.set('id', 'userid:xxxxx')
+    // 将session中的用户信息保存到req.session
     ctx.req.session = ctx.session;
     await handle(ctx.req, ctx.res);
     ctx.respond = false;

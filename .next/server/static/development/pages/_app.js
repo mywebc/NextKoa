@@ -1395,13 +1395,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var redux_devtools_extension__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(redux_devtools_extension__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var redux_thunk__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! redux-thunk */ "redux-thunk");
 /* harmony import */ var redux_thunk__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(redux_thunk__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! axios */ "axios");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_4__);
+
 
 
 
  // applyMiddleware 连接react和redux
 
 var userInitalState = {};
-var LOGOUT = 'LOGOUT';
+var LOGOUT = "LOGOUT";
 
 function userReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : userInitalState;
@@ -1425,7 +1428,7 @@ var combineReducersAll = Object(redux__WEBPACK_IMPORTED_MODULE_1__["combineReduc
 
 function logout() {
   return function (dispatch) {
-    axios.post("/logout").then(function (resp) {
+    axios__WEBPACK_IMPORTED_MODULE_4___default.a.post("/logout").then(function (resp) {
       if (resp.status === 200) {
         dispatch({
           type: LOGOUT
@@ -1456,6 +1459,17 @@ function initializeStore(state) {
 
 module.exports = __webpack_require__(/*! private-next-pages/_app.js */"./pages/_app.js");
 
+
+/***/ }),
+
+/***/ "axios":
+/*!************************!*\
+  !*** external "axios" ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("axios");
 
 /***/ }),
 
