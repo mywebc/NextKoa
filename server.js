@@ -40,6 +40,7 @@ app.prepare().then(() => {
   });
   // 处理github登录
   auth(server);
+  // 代理请求初始化数据
   api(server);
   // 路由
   router.get("/a/:id", async ctx => {

@@ -38,8 +38,8 @@ const footerStyle = {
 };
 
 function MyLayout({ children, user, logout, router }) {
+  //  拿到默认query
   const urlQuery = router.query && router.query.query;
-
   const [search, setSearch] = useState(urlQuery || "");
 
   const handleSearchChange = useCallback(
