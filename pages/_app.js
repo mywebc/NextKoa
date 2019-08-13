@@ -40,6 +40,7 @@ class MyApp extends App {
     Router.events.off("routeChangeComplete", this.stopLoading);
     Router.events.off("routeChangeError", this.stopLoading);
   }
+  
   render() {
     const { Component, pageProps, reduxStore } = this.props;
     console.log('app props', this.props)
