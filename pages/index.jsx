@@ -6,22 +6,35 @@ import Repo from "../components/Repo";
 import { getStore } from '../store'
 import axios from 'axios'
 const api = require('../lib/api')
+import { useEffect } from 'react'
+// 具有时效性的缓存策略
+import LRU from 'lru-cache'
 
 
+const cache = new LRU({
+  maxAge: 1000 * 10,
+})
 
 const { publicRuntimeConfig } = getCofnig();
 
 const isServer = typeof window === "undefined";
-
 function Index(props) {
   console.log("props", props)
+  console.log("isServer", isServer)
+
   const { userRepos, starredRepos, user, router } = props
-  console.log("请求的仓库信息", userRepos, starredRepos)
   const tabKey = router.query.key || "1";
 
   const handleTabChange = activeKey => {
     Router.push(`/?key=${activeKey}`);
   };
+
+  useEffect(() => {
+    if (!isServer) {
+        cache.set('userRepos', userRepos)
+        cache.set('starredRepos', starredRepos)
+    }
+  }, [userRepos, starredRepos])
 
   if (!user || !user.id) {
     return (
@@ -127,6 +140,15 @@ Index.getInitialProps = async (ctx) => {
     if (isServer) {
       headers['cookie'] = ctx.req.headers.cookie
     }
+    if(!isServer) {
+        if (cache.get("userRepos") && cache.get("starredRepos")) {
+          return {
+            userRepos: cache.get("userRepos"),
+            starredRepos: cache.get("starredRepos"),
+          }
+        }
+    }
+   
     try {
       const [userRepos, starredRepos] = await Promise.all([
         axios({
@@ -140,24 +162,6 @@ Index.getInitialProps = async (ctx) => {
           headers,
         }),
       ])
-      
-      // const userRepos = await api.request(
-      //   {
-      //     url: '/user/repos',
-      //   },
-      //   ctx.req,
-      //   ctx.res,
-      // )
-    
-      // const starredRepos = await api.request(
-      //   {
-      //     url: '/user/starred',
-      //   },
-      //   ctx.req,
-      //   ctx.res,
-      // )
-      console.log('asd', userRepos)
-      console.log(starredRepos)
       return {
         starredRepos: starredRepos.data,
         userRepos: userRepos.data,
