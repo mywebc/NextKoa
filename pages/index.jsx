@@ -1,61 +1,32 @@
-import { useEffect } from "react";
 import { Button, Icon, Tabs } from "antd";
 import getCofnig from "next/config";
 import { connect } from "react-redux";
 import Router, { withRouter } from "next/router";
-import Layout from "../components/Layout";
 import Repo from "../components/Repo";
-import { cacheArray } from "../lib/repo-basic-cache";
+import { getStore } from '../store'
+import axios from 'axios'
+const api = require('../lib/api')
 
-const api = require("../lib/api");
 
-// const cache = new LRU({
-//   maxAge: 1000 * 10,
-// })
 
 const { publicRuntimeConfig } = getCofnig();
 
-let cachedUserRepos, cachedUserStaredRepos;
-
 const isServer = typeof window === "undefined";
 
-function Index({ userRepos, userStaredRepos, user, router }) {
-  // console.log(userRepos, userStaredRepos)
-
+function Index(props) {
+  console.log("props", props)
+  const { userRepos, starredRepos, user, router } = props
+  console.log("请求的仓库信息", userRepos, starredRepos)
   const tabKey = router.query.key || "1";
 
   const handleTabChange = activeKey => {
     Router.push(`/?key=${activeKey}`);
   };
 
-  useEffect(() => {
-    if (!isServer) {
-      cachedUserRepos = userRepos;
-      cachedUserStaredRepos = userStaredRepos;
-      // if (userRepos) {
-      //   cache.set('userRepos', userRepos)
-      // }
-      // if (userStaredRepos) {
-      //   cache.set('userStaredRepos', userStaredRepos)
-      // }
-      const timeout = setTimeout(() => {
-        cachedUserRepos = null;
-        cachedUserStaredRepos = null;
-      }, 1000 * 60 * 10);
-    }
-  }, [userRepos, userStaredRepos]);
-
-  useEffect(() => {
-    if (!isServer) {
-      cacheArray(userRepos);
-      cacheArray(userStaredRepos);
-    }
-  });
-
   if (!user || !user.id) {
     return (
       <div className="root">
-        <p> 亲， 您还没有登录哦~ </p>
+        <p> 请求先登录哦~ </p>
         <Button type="primary" href={publicRuntimeConfig.OAUTH_URL}>
           点击登录
         </Button>
@@ -92,20 +63,17 @@ function Index({ userRepos, userStaredRepos, user, router }) {
         </p>
       </div>
       <div className="user-repos">
-        {/* {userRepos.map(repo => (
-                <Repo repo={repo} />
-              ))} */}
         <Tabs activeKey={tabKey} onChange={handleTabChange} animated={false}>
-          {/* <Tabs.TabPane tab="你的仓库" key="1">
-              {userRepos.map(repo => (
-                <Repo key={repo.id} repo={repo} />
-              ))}
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="你关注的仓库" key="2">
-              {userStaredRepos.map(repo => (
-                <Repo key={repo.id} repo={repo} />
-              ))}
-            </Tabs.TabPane> */}
+          <Tabs.TabPane tab="你的仓库" key="1">
+            {userRepos&&userRepos.map(repo => (
+              <Repo key={repo.id} repo={repo} key={repo.id}/>
+            ))}
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="你关注的仓库" key="2">
+            {starredRepos&&starredRepos.map(repo => (
+              <Repo key={repo.id} repo={repo} key={repo.id}/>
+            ))}
+          </Tabs.TabPane>
         </Tabs>
       </div>
       <style jsx>
@@ -147,57 +115,66 @@ function Index({ userRepos, userStaredRepos, user, router }) {
     </div>
   );
 }
+const API_BASE = process.env.API_BASE + '/github'
 
-Index.getInitialProps = async ({ ctx, reduxStore }) => {
-  // const result = await axios
-  //   .get('/github/search/repositories?q=react')
-  //   .then(resp => console.log(resp))
-
-  const user = reduxStore.getState().user;
-  console.log(reduxStore);
-  if (!user || !user.id) {
-    return {
-      isLogin: false
-    };
-  }
-
-  if (!isServer) {
-    // if (cache.get('userRepos') && cache.get('userStaredRepos')) {
-    //   return {
-    //     userRepos: cache.get('userRepos'),
-    //     userStaredRepos: cache.get('userStaredRepos'),
-    //   }
-    // }
-
-    if (cachedUserRepos && cachedUserStaredRepos) {
+Index.getInitialProps = async (ctx) => {
+  const store = getStore()
+  // 从redux里面拿到信息实时的
+  const user = store.getState().user;
+  console.log("用户信息", user);
+  if (user || user.id) {
+    let headers = {}
+    if (isServer) {
+      headers['cookie'] = ctx.req.headers.cookie
+    }
+    try {
+      const [userRepos, starredRepos] = await Promise.all([
+        axios({
+          method: 'GET',
+          url: `${API_BASE}/user/repos`,
+          headers,
+        }),
+        axios({
+          method: 'GET',
+          url: `${API_BASE}/user/starred`,
+          headers,
+        }),
+      ])
+      
+      // const userRepos = await api.request(
+      //   {
+      //     url: '/user/repos',
+      //   },
+      //   ctx.req,
+      //   ctx.res,
+      // )
+    
+      // const starredRepos = await api.request(
+      //   {
+      //     url: '/user/starred',
+      //   },
+      //   ctx.req,
+      //   ctx.res,
+      // )
+      console.log('asd', userRepos)
+      console.log(starredRepos)
       return {
-        userRepos: cachedUserRepos,
-        userStaredRepos: cachedUserStaredRepos
-      };
+        starredRepos: starredRepos.data,
+        userRepos: userRepos.data,
+      }
+    } catch (err) {
+      console.error('---------------', err.message)
+      return {
+        starredRepos: [],
+        userRepos: [],
+      }
+    }
+  }else {
+    return {
+      starredRepos: [],
+      userRepos: [],
     }
   }
-
-  const userRepos = await api.request(
-    {
-      url: "/user/repos"
-    },
-    ctx.req,
-    ctx.res
-  );
-
-  const userStaredRepos = await api.request(
-    {
-      url: "/user/starred"
-    },
-    ctx.req,
-    ctx.res
-  );
-
-  return {
-    isLogin: true,
-    userRepos: userRepos.data,
-    userStaredRepos: userStaredRepos.data
-  };
 };
 
 export default withRouter(

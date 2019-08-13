@@ -54,8 +54,16 @@ if (typeof require !== 'undefined') {
   require.extensions['.css'] = file => {}
 }
 
+const isDev = process.env.NODE_ENV === 'development'
+
+const API_BASE = isDev ? 'http://localhost:3000' : 'http://localhost:3000'
+
+
 module.exports = withBundleAnalyzer(
   withCss({
+    env: {
+      API_BASE,
+    },
     webpack(config) {
       config.plugins.push(new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/))
       return config

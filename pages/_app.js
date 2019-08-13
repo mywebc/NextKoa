@@ -28,10 +28,11 @@ class MyApp extends App {
     Router.events.on("routeChangeStart", this.startLoading);
     Router.events.on("routeChangeComplete", this.stopLoading);
     Router.events.on("routeChangeError", this.stopLoading);
-
-    axios
-      .get("/github/search/repositories?q=react")
-      .then(res => console.log(res));
+    console.log('app app')
+    // node服务代理
+    // axios
+    //   .get("/github/search/repositories?q=react")
+    //   .then(res => console.log(res));
   }
 
   componentWillUnmount() {
@@ -39,22 +40,14 @@ class MyApp extends App {
     Router.events.off("routeChangeComplete", this.stopLoading);
     Router.events.off("routeChangeError", this.stopLoading);
   }
-  static async getInitialProps({ Component, ctx }) {
-    let pageProps;
-    if (Component.getInitialProps) {
-      pageProps = Component.getInitialProps(ctx);
-    }
-    return {
-      pageProps
-    };
-  }
   render() {
     const { Component, pageProps, reduxStore } = this.props;
+    console.log('app props', this.props)
     return (
       <Container>
         <Provider store={reduxStore}>
           {this.state.loading ? <PageLoading /> : null}
-          <Layout>
+          <Layout dispatch={reduxStore.dispatch}>
             <Component {...pageProps} />
           </Layout>
         </Provider>

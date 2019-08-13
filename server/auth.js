@@ -25,7 +25,6 @@ module.exports = server => {
         }
       });
       if (result.status === 200 && (result.data && !result.data.error)) {
-        console.log("请求的token数据： result", result);
         ctx.session.githubAuth = result.data;
 
         const { access_token, token_type } = result.data;

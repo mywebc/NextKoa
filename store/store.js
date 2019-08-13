@@ -40,9 +40,10 @@ export function logout() {
       });
   };
 }
+let store
 
 export default function initializeStore(state) {
-  const store = createStore(
+  store = createStore(
     combineReducersAll,
     Object.assign(
       {},
@@ -55,4 +56,7 @@ export default function initializeStore(state) {
   );
 
   return store;
+}
+export function getStore() {
+  return store
 }

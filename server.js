@@ -1,6 +1,7 @@
 const Koa = require("koa");
 const Router = require("koa-router");
 const next = require("next");
+const koaBody = require('koa-body')
 // koa中的session 包
 const session = require("koa-session");
 const RedisSessionStore = require("./server/session-store");
@@ -33,9 +34,9 @@ app.prepare().then(() => {
   };
   // 使用session  
   server.use(session(SESSION_CONFIG, server));
+  server.use(koaBody())
 
   server.use(async (ctx, next) => {
-    console.log("session is", ctx.session);
     await next();
   });
   // 处理github登录
