@@ -13,12 +13,14 @@ const app = next({
 });
 const handle = app.getRequestHandler();
 const Redis = require("ioredis")
+// 将乱码转化为markdown
+const atob = require("atob")
 
 // 创建redis client
 const redis = new Redis();
 
 // 设置nodejs全局增加一个atob方法
-// global.atob = atob;
+global.atob = atob;
 
 app.prepare().then(() => {
   const server = new Koa();
@@ -82,15 +84,15 @@ app.prepare().then(() => {
     }
   });
   // detail 页面
-  router.get("/detail", async ctx => {
-    const user = ctx.session.userInfo;
-    if (!user) {
-      ctx.status = 401;
-      ctx.body = "Need Login";
-    } else {
-      ctx.response = false
-    }
-  });
+  // router.get("/detail", async ctx => {
+  //   const user = ctx.session.userInfo;
+  //   if (!user) {
+  //     ctx.status = 401;
+  //     ctx.body = "Need Login";
+  //   } else {
+  //     ctx.response = false
+  //   }
+  // });
 
 
   server.use(router.routes());

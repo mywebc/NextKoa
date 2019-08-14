@@ -40,7 +40,17 @@ class MyApp extends App {
     Router.events.off("routeChangeComplete", this.stopLoading);
     Router.events.off("routeChangeError", this.stopLoading);
   }
-  
+  // static async getInitialProps(ctx) {
+  //   const { Component } = ctx
+  //   console.log('app init')
+  //   let pageProps = {}
+  //   if (Component.getInitialProps) {
+  //     pageProps = await Component.getInitialProps(ctx)
+  //   }
+  //   return {
+  //     pageProps,
+  //   }
+  // }
   render() {
     const { Component, pageProps, reduxStore } = this.props;
     console.log('app props', this.props)
