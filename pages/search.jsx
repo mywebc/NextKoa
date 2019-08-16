@@ -143,7 +143,7 @@ function Search({ repos, router }) {
       </div>
     )
   }
-Search.getInitialProps = async function(ctx) {
+Search.getInitialProps = async function({ctx}) {
     const { query, sort, lang, order, page } = ctx.query
   
     if (!query) {
@@ -164,7 +164,6 @@ Search.getInitialProps = async function(ctx) {
     )
     // console.log(status, data)
     if (status === 200) {
-      // cacheRepos(data.items)
       console.log("data", data)
       cacheBasicList(data.items)
       return {

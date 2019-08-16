@@ -65,7 +65,7 @@ export default (Comp, type = 'index') => {
     )
   }
 
-  Detail.getInitialProps = async function(ctx) {
+  Detail.getInitialProps = async function({ctx}) {
     // console.log('++++++++++', ctx)
     const { owner, name } = ctx.query
 
@@ -91,7 +91,6 @@ export default (Comp, type = 'index') => {
       pageData = await Comp.getInitialProps(ctx)
     }
 
-    // console.log('---------------', repoBasic)
 
     return {
       basic: repoBasic,

@@ -1,9 +1,6 @@
 import { useState } from 'react'
-// import MarkdownIt from 'markdown-it'
 import dynamic from 'next/dynamic'
-
 import { Avatar, Button } from 'antd'
-
 import withDetail from '../../components/with-detail'
 import { getRepoIssues } from '../../lib/model'
 import api from '../../lib/api'
@@ -130,6 +127,9 @@ function IssueItem({ issue }) {
 }
 
 function Issues({ issues }) {
+  if(!issues) {
+    issues = []
+  }
   return (
     <div className="root">
       {issues.map(issue => (
@@ -146,7 +146,7 @@ function Issues({ issues }) {
   )
 }
 
-Issues.getInitialProps = async ctx => {
+Issues.getInitialProps = async (ctx) => {
   const { owner, name } = ctx.query
 
   const fullname = `${owner}/${name}`
@@ -156,13 +156,6 @@ Issues.getInitialProps = async ctx => {
   return {
     issues,
   }
-
-  // return {
-  //   issues: issues.map(issues => {
-  //     issues.body = md.render(issues.body)
-  //     return issues
-  //   }),
-  // }
 }
 
 

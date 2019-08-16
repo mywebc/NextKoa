@@ -9,10 +9,12 @@ module.exports = server => {
   server.use(async (ctx, next) => {
     const path = ctx.path;
     const method = ctx.method;
-
+    console.log("=============================================", path)
+    console.log("=============================================", method)
     if (path.startsWith("/github/")) {
-      console.log(ctx.request.body);
+      console.log("session=============================", ctx.session);
       const session = ctx.session;
+      debugger
       const githubAuth = session && session.githubAuth;
       const headers = {};
       if (githubAuth && githubAuth.access_token) {
@@ -20,16 +22,20 @@ module.exports = server => {
           githubAuth.access_token
         }`;
       }
-      const result = await requestGithub(
-        method,
-        ctx.url.replace("/github/", "/"),
-        ctx.request.body || {},
-        headers
-      );
-
-      ctx.status = result.status;
-      ctx.body = result.data;
+      try {
+        const result = await requestGithub(
+          method,
+          ctx.url.replace("/github/", "/"),
+          ctx.request.body || {},
+          headers
+        );
+        ctx.status = result.status;
+        ctx.body = result.data;
+      } catch (error) {
+        console.log("请i去错误+++++++++++++++++++", error.message)
+      }
     } else {
+      console.log("fail++++++++++++++++++++++++++++++")
       await next();
     }
   });

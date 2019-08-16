@@ -21,7 +21,6 @@ const isServer = typeof window === "undefined";
 function Index(props) {
   console.log("props", props)
   console.log("isServer", isServer)
-
   const { userRepos, starredRepos, user, router } = props
   const tabKey = router.query.key || "1";
 
@@ -134,12 +133,13 @@ Index.getInitialProps = async (ctx) => {
   const store = getStore()
   // 从redux里面拿到信息实时的
   const user = store.getState().user;
-  console.log("用户信息", user);
+  // console.log("用户信息", user);
+  // console.log("用户信息===================", ctx);
   if (user || user.id) {
-    let headers = {}
-    if (isServer) {
-      headers['cookie'] = ctx.req.headers.cookie
-    }
+    // let headers = {}
+    // if (isServer) {
+    //   headers['cookie'] = ctx.req.headers.cookie
+    // }
     if(!isServer) {
         if (cache.get("userRepos") && cache.get("starredRepos")) {
           return {
@@ -150,18 +150,35 @@ Index.getInitialProps = async (ctx) => {
     }
    
     try {
-      const [userRepos, starredRepos] = await Promise.all([
-        axios({
-          method: 'GET',
-          url: `${API_BASE}/user/repos`,
-          headers,
-        }),
-        axios({
-          method: 'GET',
-          url: `${API_BASE}/user/starred`,
-          headers,
-        }),
-      ])
+      const userRepos = await api.request(
+        {
+          url: '/user/repos',
+        },
+        ctx.ctx.req,
+        ctx.ctx.res,
+      )
+    
+      const starredRepos = await api.request(
+        {
+          url: '/user/starred',
+        },
+        ctx.ctx.req,
+        ctx.ctx.res,
+      )
+      // const [userRepos, starredRepos] = await Promise.all([
+      //   axios({
+      //     method: 'GET',
+      //     url: `${API_BASE}/user/repos`,
+      //     headers,
+      //   }),
+      //   axios({
+      //     method: 'GET',
+      //     url: `${API_BASE}/user/starred`,
+      //     headers,
+      //   }),
+      // ])
+      // console.log("qingiqu", userRepos)
+      // console.log("qingiqu", starredRepos)
       return {
         starredRepos: starredRepos.data,
         userRepos: userRepos.data,
@@ -169,13 +186,13 @@ Index.getInitialProps = async (ctx) => {
     } catch (err) {
       console.error('---------------', err.message)
       return {
-        starredRepos: [],
+        starredRepos: ["1234"],
         userRepos: [],
       }
     }
   }else {
     return {
-      starredRepos: [],
+      starredRepos: ["123"],
       userRepos: [],
     }
   }

@@ -37,7 +37,6 @@ module.exports = server => {
           }
         });
 
-        // console.log(userInfoResp.data)
         ctx.session.userInfo = userInfoResp.data;
 
         ctx.redirect((ctx.session && ctx.session.urlBeforeOAuth) || "/");

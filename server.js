@@ -41,10 +41,7 @@ app.prepare().then(() => {
   server.use(async (ctx, next) => {
     await next();
   });
-  // 处理github登录
-  auth(server);
-  // 代理请求初始化数据
-  api(server);
+
   // 路由
   router.get("/a/:id", async ctx => {
     const id = ctx.params.id;
@@ -83,20 +80,11 @@ app.prepare().then(() => {
       ctx.set("Content-Type", "application/json");
     }
   });
-  // detail 页面
-  // router.get("/detail", async ctx => {
-  //   const user = ctx.session.userInfo;
-  //   if (!user) {
-  //     ctx.status = 401;
-  //     ctx.body = "Need Login";
-  //   } else {
-  //     ctx.response = false
-  //   }
-  // });
-
-
+  // 处理github登录
+  auth(server);
+  // 代理请求初始化数据
+  api(server);
   server.use(router.routes());
-
   server.use(async (ctx, next) => {
     // 将session中的用户信息保存到req.session
     ctx.req.session = ctx.session;
@@ -108,7 +96,7 @@ app.prepare().then(() => {
     ctx.res.statusCode = 200;
     await next();
   });
-
+  
   server.listen(3000, () => {
     console.log("koa server listening on 3000");
   });
